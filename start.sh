@@ -1,8 +1,10 @@
 #!/bin/bash
-# FFmpeg kontrolü
+echo "Checking system dependencies..."
+# FFmpeg kontrolü - Render'da genellikle zaten kurulu
 if ! command -v ffmpeg &> /dev/null; then
-    echo "FFmpeg not found! Installing..."
-    apt-get update && apt-get install -y ffmpeg
+    echo "WARNING: FFmpeg not found! Audio conversion may not work properly."
+else
+    echo "FFmpeg is available"
 fi
 
 echo "Starting ZB MUSIC Bot..."
