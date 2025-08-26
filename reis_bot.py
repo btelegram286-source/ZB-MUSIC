@@ -5,6 +5,8 @@ import yt_dlp
 import ffmpeg
 import subprocess
 import requests
+from flask import Flask
+from threading import Thread
 
 from pathlib import Path
 
@@ -13,6 +15,24 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN', "8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_
 bot = telebot.TeleBot(BOT_TOKEN)
 TEMP_DIR = Path("ZB_MUSIC")
 TEMP_DIR.mkdir(exist_ok=True)
+
+# Flask app for keeping the bot alive
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "ZB MUSIC Bot is running!"
+
+@app.route('/ping')
+def ping():
+    return "pong"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=5000)
+
+def run_bot():
+    print("[REIS BOT] Başlatıldı...")
+    bot.infinity_polling()
 
 # --- MÜZİK İNDİRME VE DÖNÜŞTÜRME ---
 def indir_ve_donustur(query):
@@ -59,5 +79,13 @@ def handle_query(message):
         bot.reply_to(message, f"❌ Bir hata oluştu reis:\n{str(e)}")
 
 # --- ÇALIŞTIR ---
-print("[REIS BOT] Başlatıldı...")
-bot.infinity_polling()
+if __name__ == "__main__":
+    print("Starting ZB MUSIC Bot with Flask server...")
+    
+    # Start Flask in a separate thread
+    flask_thread = Thread(target=run_flask)
+    flask_thread.daemon = True
+    flask_thread.start()
+    
+    # Start the bot
+    run_bot()
