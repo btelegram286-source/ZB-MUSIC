@@ -3,13 +3,15 @@ import uuid
 import telebot
 import yt_dlp
 import ffmpeg
+import subprocess
+import requests
 
 from pathlib import Path
 
 # --- AYARLAR ---
-BOT_TOKEN = "8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_dUXEuVY"
+BOT_TOKEN = os.environ.get('BOT_TOKEN', "8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_dUXEuVY")
 bot = telebot.TeleBot(BOT_TOKEN)
-TEMP_DIR = Path("ZB MUSIC")
+TEMP_DIR = Path("ZB_MUSIC")
 TEMP_DIR.mkdir(exist_ok=True)
 
 # --- MÜZİK İNDİRME VE DÖNÜŞTÜRME ---
@@ -41,6 +43,10 @@ def indir_ve_donustur(query):
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "🎶 Selam reis! Şarkı ismini gönder, sana MP3 olarak araç formatında yollayayım.")
+
+@bot.message_handler(commands=['getid'])
+def send_chat_id(message):
+    bot.reply_to(message, f"Chat ID'niz: {message.chat.id}")
 
 @bot.message_handler(func=lambda m: True)
 def handle_query(message):
