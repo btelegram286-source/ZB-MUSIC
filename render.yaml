@@ -8,7 +8,11 @@ services:
     startCommand: python reis_bot.py --webhook
     envVars:
       - key: BOT_TOKEN
-        value: 8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_dUXEuVY
+        fromSecret: BOT_TOKEN
+      - key: GITHUB_TOKEN
+        fromSecret: GITHUB_TOKEN
+      - key: GITHUB_USER
+        value: btelegram286-source
       - key: PORT
         value: 10000
       - key: PYTHON_VERSION
