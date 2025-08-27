@@ -1,5 +1,5 @@
-telebot
-yt-dlp
-ffmpeg-python
-Flask
-requests
+pyTelegramBotAPI==4.14.1
+yt-dlp==2024.8.6
+ffmpeg-python==0.2.0
+Flask==3.0.3
+requests==2.32.3
