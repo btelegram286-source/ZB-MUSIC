@@ -1,6 +1,8 @@
-# 🎵 ZB MUSIC Bot
+# 🎵 ZB MUSIC Bot v1.1
 
 Telegram üzerinden müzik indirme botu. Kullanıcılar şarkı ismi gönderir, bot YouTube'dan MP3 formatında indirip gönderir.
+
+**Güncelleme:** yt-dlp sürüm hatası düzeltildi, webhook yapılandırması Render için optimize edildi.
 
 ## Özellikler
 
@@ -55,7 +57,7 @@ python reis_bot.py
 | Değişken | Açıklama | Gerekli |
 |----------|----------|---------|
 | `BOT_TOKEN` | Telegram bot token | Evet |
-| `WEBHOOK_HOST` | Webhook URL (Render için) | Hayır |
+| `RENDER_EXTERNAL_URL` | Render webhook URL | Hayır |
 | `PORT` | Port numarası | Hayır |
 
 ## Kullanım
