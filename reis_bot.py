@@ -7,7 +7,9 @@ from flask import Flask, request
 from pathlib import Path
 
 # --- AYARLAR ---
-BOT_TOKEN = os.environ.get('BOT_TOKEN', "8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_dUXEuVY")
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN ortam değişkeni ayarlanmamış! Lütfen bot tokenını ayarlayın.")
 bot = telebot.TeleBot(BOT_TOKEN)
 TEMP_DIR = Path("ZB_MUSIC")
 TEMP_DIR.mkdir(exist_ok=True)
@@ -38,6 +40,17 @@ def indir_ve_donustur(query):
         'noplaylist': True,
         'quiet': True,
         'no_warnings': True,
+        'cookiefile': 'cookies.txt',  # Cookie dosyası eklendi
+        'extractor_args': {
+            'youtube': {
+                'skip': ['dash', 'hls'],
+                'player_client': ['android', 'web']
+            }
+        },
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'referer': 'https://www.youtube.com/',
+        'socket_timeout': 30,
+        'retries': 3,
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -70,7 +83,7 @@ def handle_query(message):
 
 # --- SUNUCUYU BAŞLAT ---
 if __name__ == "__main__":
-    print("🚀 ZB MUSIC Bot başlatılıyor (Webhook modunda)...")
+    print("🚀 ZB MUSIC Bot başlatılıyor (Polling modunda)...")
     bot.remove_webhook()
-    bot.set_webhook(url="https://zb-music-1.onrender.com/" + BOT_TOKEN)
-    app.run(host="0.0.0.0", port=10000)
+    print("🤖 Bot polling modunda çalışıyor. Mesajları dinliyor...")
+    bot.infinity_polling()
