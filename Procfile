@@ -1,1 +1,1 @@
-web: python reis_bot.py
+web: python reis_bot.py --webhook

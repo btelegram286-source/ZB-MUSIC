@@ -16,37 +16,45 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
 # Virtual environments
-venv/
-env/
-ENV/
-
-# Environment variables
 .env
 .venv
-
-# Temporary files
-temp_music/
-*.tmp
-*.temp
-
-# Logs
-*.log
-logs/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temp files
+temp_music/
+*.mp3
+*.wav
+*.temp
+
+# Config files
+config.env
+*.env
+
+# FFmpeg temp files
+ffmpeg*.exe
+ffprobe*.exe
