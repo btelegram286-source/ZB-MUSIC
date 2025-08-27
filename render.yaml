@@ -2,8 +2,8 @@ services:
   - type: web
     name: zb-music-bot
     env: python
-    buildCommand: chmod +x build.sh && ./build.sh
-    startCommand: chmod +x start.sh && ./start.sh
+    buildCommand: pip install -r requirements.txt
+    startCommand: python reis_bot.py
     envVars:
       - key: BOT_TOKEN
         value: 8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_dUXEuVY
