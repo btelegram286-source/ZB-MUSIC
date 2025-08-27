@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: zb-music-bot
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python reis_bot.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: WEBHOOK_HOST
+        fromService:
+          type: web
+          name: zb-music-bot
+          property: url
