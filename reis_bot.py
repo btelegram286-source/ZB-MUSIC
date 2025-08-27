@@ -11,7 +11,7 @@ from pathlib import Path
 
 # --- AYARLAR ---
 BOT_TOKEN = os.environ.get('BOT_TOKEN', "8182908384:AAF9Utjvkgo9F4Nw8MoZbvSXJ-Y_dUXEuVY")
-WEBHOOK_HOST = os.environ.get('WEBHOOK_HOST', 'https://your-app-name.herokuapp.com')
+WEBHOOK_HOST = os.environ.get('RENDER_EXTERNAL_URL', 'https://your-app-name.onrender.com')
 WEBHOOK_PORT = os.environ.get('PORT', 5000)
 WEBHOOK_LISTEN = '0.0.0.0'
 SOUNDCLOUD_CLIENT_ID = os.environ.get('SOUNDCLOUD_CLIENT_ID', 'YOUR_SOUNDCLOUD_CLIENT_ID')
