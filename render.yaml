@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     region: frankfurt
-    buildCommand: pip install -r requirements.txt
+    buildCommand: chmod +x render_build.sh && ./render_build.sh
     startCommand: python reis_bot.py --webhook
     envVars:
       - key: BOT_TOKEN
