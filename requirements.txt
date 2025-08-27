@@ -1,0 +1,5 @@
+telebot
+yt-dlp
+ffmpeg-python
+Flask
+requests
