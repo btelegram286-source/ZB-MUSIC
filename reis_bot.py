@@ -6,6 +6,10 @@ import ffmpeg
 import logging
 import requests
 import json
+import subprocess
+import time
+import threading
+from datetime import datetime
 from flask import Flask, request, abort
 from pathlib import Path
 
@@ -164,6 +168,39 @@ def handle_query(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Bir hata oluştu reis:\n{str(e)}")
         logging.error(f"Hata: {e}")
+
+# --- AUTO BACKUP SİSTEMİ ---
+def auto_backup():
+    """Otomatik GitHub backup fonksiyonu"""
+    GITHUB_USER = os.getenv("GITHUB_USER", "btelegram286-source")
+    GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+    
+    if not GITHUB_TOKEN:
+        logging.warning("GITHUB_TOKEN bulunamadı, backup devre dışı")
+        return
+    
+    while True:
+        try:
+            # Tarihli commit mesajı
+            commit_msg = f"Auto-backup {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            
+            # Git işlemleri
+            subprocess.run(["git", "config", "--global", "user.email", "backup@zbmuzik.com"], check=True)
+            subprocess.run(["git", "config", "--global", "user.name", "ZB MUZIK BOT"], check=True)
+            subprocess.run(["git", "add", "."], check=True)
+            subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+            subprocess.run([
+                "git", "push", f"https://{GITHUB_USER}:{GITHUB_TOKEN}@github.com/{GITHUB_USER}/ZB-MUSIC.git", "main"
+            ], check=True)
+            logging.info("✅ Backup başarıyla GitHub'a push edildi.")
+        except Exception as e:
+            logging.error(f"❌ Backup hatası: {e}")
+        
+        time.sleep(3600)  # ⏰ Her 1 saatte bir backup
+
+# Backup thread'i başlat
+backup_thread = threading.Thread(target=auto_backup, daemon=True)
+backup_thread.start()
 
 # --- WEBHOOK KURULUMU ---
 def set_webhook():
