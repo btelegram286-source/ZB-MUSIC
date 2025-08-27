@@ -3,11 +3,7 @@ import uuid
 import telebot
 import yt_dlp
 import ffmpeg
-import subprocess
-import requests
-from flask import Flask
-from threading import Thread
-
+from flask import Flask, request
 from pathlib import Path
 
 # --- AYARLAR ---
@@ -16,23 +12,18 @@ bot = telebot.TeleBot(BOT_TOKEN)
 TEMP_DIR = Path("ZB_MUSIC")
 TEMP_DIR.mkdir(exist_ok=True)
 
-# Flask app for keeping the bot alive
+# --- FLASK SUNUCUSU ---
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "ZB MUSIC Bot is running!"
+    return "🎵 ZB MUSIC Bot is running!"
 
-@app.route('/ping')
-def ping():
-    return "pong"
-
-def run_flask():
-    app.run(host='0.0.0.0', port=5000)
-
-def run_bot():
-    print("[REIS BOT] Başlatıldı...")
-    bot.infinity_polling()
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
+def webhook():
+    update = telebot.types.Update.de_json(request.stream.read().decode("utf-8"))
+    bot.process_new_updates([update])
+    return "OK", 200
 
 # --- MÜZİK İNDİRME VE DÖNÜŞTÜRME ---
 def indir_ve_donustur(query):
@@ -53,13 +44,12 @@ def indir_ve_donustur(query):
         ydl.download([video_url])
 
     downloaded_file = next(TEMP_DIR.glob(f"{unique_id}.*"))
-    
     ffmpeg.input(str(downloaded_file)).output(str(mp3_path), audio_bitrate='320k').run(overwrite_output=True)
     downloaded_file.unlink()
 
     return mp3_path
 
-# --- BOT KOMUTU ---
+# --- BOT KOMUTLARI ---
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "🎶 Selam reis! Şarkı ismini gönder, sana MP3 olarak araç formatında yollayayım.")
@@ -78,14 +68,9 @@ def handle_query(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Bir hata oluştu reis:\n{str(e)}")
 
-# --- ÇALIŞTIR ---
+# --- SUNUCUYU BAŞLAT ---
 if __name__ == "__main__":
-    print("Starting ZB MUSIC Bot with Flask server...")
-    
-    # Start Flask in a separate thread
-    flask_thread = Thread(target=run_flask)
-    flask_thread.daemon = True
-    flask_thread.start()
-    
-    # Start the bot
-    run_bot()
+    print("🚀 ZB MUSIC Bot başlatılıyor (Webhook modunda)...")
+    bot.remove_webhook()
+    bot.set_webhook(url="https://zb-music-1.onrender.com/" + BOT_TOKEN)
+    app.run(host="0.0.0.0", port=10000)
