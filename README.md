@@ -1,6 +1,8 @@
-# 🎵 ZB MUSIC Bot
+# 🎵 ZB MUSIC Bot v1.1
 
 Telegram üzerinden müzik indirme botu. Kullanıcılar şarkı ismi gönderir, bot YouTube'dan MP3 formatında indirip gönderir.
+
+**Güncelleme:** yt-dlp sürüm hatası düzeltildi.
 
 ## Özellikler
 
