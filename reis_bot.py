@@ -98,6 +98,19 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k') -> Path:
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 3,
+        },
+        # 3. Deneme: Mobil user-agent ile
+        {
+            'format': 'bestaudio/best',
+            'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
+            'noplaylist': True,
+            'quiet': True,
+            'no_warnings': True,
+            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'user_agent': 'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36',
+            'referer': 'https://www.youtube.com/',
+            'socket_timeout': 30,
+            'retries': 3,
         }
     ]
 
@@ -112,7 +125,7 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k') -> Path:
     last_error = None
     for i, ydl_opts in enumerate(ydl_opts_list, 1):
         try:
-            print(f"⏳ İndirme denemesi {i}/2: {ydl_opts['extractor_args']['youtube']['player_client'][0]} client")
+            print(f"⏳ İndirme denemesi {i}/3: {ydl_opts.get('user_agent', 'default')}")
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([video_url])
