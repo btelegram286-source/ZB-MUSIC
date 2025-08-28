@@ -94,7 +94,7 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k') -> Path:
                     'player_client': ['android']
                 }
             },
-            'user_agent': 'Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36',
+            'user_agent': 'com.google.android.youtube/18.31.40 (Linux; Android 12)',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 3,
@@ -258,7 +258,7 @@ def handle_callback(call):
             
             mp3_file.unlink()
             
-Günlük 20 şarkı indirme limiti        except Exception as e:
+        except Exception as e:
             bot.answer_callback_query(call.id, "❌ İndirme hatası!")
             bot.send_message(user_id, f"❌ Hata: {str(e)}")
 
@@ -310,10 +310,14 @@ if __name__ == "__main__":
         app.run(host='0.0.0.0', port=5000, debug=True)
     else:
         print("🚀 ZB MUSIC Bot başlatılıyor (Polling modunda)...")
-        try:
-            bot.remove_webhook()
-            print("🤖 Bot polling modunda çalışıyor. Mesajları dinliyor...")
-            bot.infinity_polling()
+    try:
+        bot.remove_webhook()
+        print("🤖 Bot polling modunda çalışıyor. Mesajları dinliyor...")
+        bot.infinity_polling()
+    except Exception as e:
+        print(f"❌ Telegram bağlantı hatası: {e}")
+        print("🌐 Flask sunucusu başlatılıyor...")
+        app.run(host='0.0.0.0', port=5000, debug=True)
         except Exception as e:
             print(f"❌ Telegram bağlantı hatası: {e}")
             print("🌐 Flask sunucusu başlatılıyor...")
