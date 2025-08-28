@@ -50,39 +50,99 @@ def arama_yap(query: str, limit: int = 5) -> List[Dict]:
         return []
 
 def indir_ve_donustur(video_id: str, bitrate: str = '320k') -> Path:
-    """Belirli bir video ID'sini indir ve MP3'e dönüştür"""
+    """Belirli bir video ID'sini indir ve MP3'e dönüştür (gelişmiş versiyon)"""
     unique_id = str(uuid.uuid4())
     video_url = f"https://www.youtube.com/watch?v={video_id}"
     mp3_path = TEMP_DIR / f"{unique_id}.mp3"
     temp_path = TEMP_DIR / f"{unique_id}"
 
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
-        'noplaylist': True,
-        'quiet': True,
-        'no_warnings': True,
-        'cookiefile': 'cookies.txt',
-        'extractor_args': {
-            'youtube': {
-                'skip': ['dash', 'hls'],
-                'player_client': ['android', 'web']
-            }
+    # Çerezleri environment variable'dan al
+    yt_cookies = os.environ.get('YT_COOKIES', '')
+    
+    # İndirme seçenekleri - önce normal, sonra Android client ile dene
+    ydl_opts_list = [
+        # 1. Deneme: Normal web client + çerezler
+        {
+            'format': 'bestaudio/best',
+            'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
+            'noplaylist': True,
+            'quiet': True,
+            'no_warnings': True,
+            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'extractor_args': {
+                'youtube': {
+                    'skip': ['dash', 'hls'],
+                    'player_client': ['web']
+                }
+            },
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'referer': 'https://www.youtube.com/',
+            'socket_timeout': 30,
+            'retries': 3,
         },
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-        'referer': 'https://www.youtube.com/',
-        'socket_timeout': 30,
-        'retries': 3,
-    }
+        # 2. Deneme: Android client + çerezler
+        {
+            'format': 'bestaudio/best',
+            'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
+            'noplaylist': True,
+            'quiet': True,
+            'no_warnings': True,
+            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'extractor_args': {
+                'youtube': {
+                    'skip': ['dash', 'hls'],
+                    'player_client': ['android']
+                }
+            },
+            'user_agent': 'Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36',
+            'referer': 'https://www.youtube.com/',
+            'socket_timeout': 30,
+            'retries': 3,
+        }
+    ]
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
+    # Eğer YT_COOKIES environment variable varsa, geçici cookies.txt oluştur
+    if yt_cookies:
+        with open('cookies.txt', 'w', encoding='utf-8') as f:
+            f.write(yt_cookies)
+        # Çerez dosyası kullanılacak şekilde tüm seçenekleri güncelle
+        for opts in ydl_opts_list:
+            opts['cookiefile'] = 'cookies.txt'
 
-    downloaded_file = next(TEMP_DIR.glob(f"{unique_id}.*"))
-    ffmpeg.input(str(downloaded_file)).output(str(mp3_path), audio_bitrate=bitrate).run(overwrite_output=True)
-    downloaded_file.unlink()
+    last_error = None
+    for i, ydl_opts in enumerate(ydl_opts_list, 1):
+        try:
+            print(f"⏳ İndirme denemesi {i}/2: {ydl_opts['extractor_args']['youtube']['player_client'][0]} client")
+            
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([video_url])
 
-    return mp3_path
+            downloaded_file = next(TEMP_DIR.glob(f"{unique_id}.*"))
+            ffmpeg.input(str(downloaded_file)).output(str(mp3_path), audio_bitrate=bitrate).run(overwrite_output=True)
+            downloaded_file.unlink()
+
+            # Temizlik: Geçici cookies.txt dosyasını sil
+            if yt_cookies and os.path.exists('cookies.txt'):
+                os.remove('cookies.txt')
+                
+            return mp3_path
+
+        except Exception as e:
+            last_error = e
+            print(f"❌ Deneme {i} başarısız: {str(e)}")
+            # Önceki denemede oluşan geçici dosyaları temizle
+            for temp_file in TEMP_DIR.glob(f"{unique_id}.*"):
+                try:
+                    temp_file.unlink()
+                except:
+                    pass
+            continue
+
+    # Temizlik: Geçici cookies.txt dosyasını sil
+    if yt_cookies and os.path.exists('cookies.txt'):
+        os.remove('cookies.txt')
+        
+    raise Exception(f"Tüm indirme denemeleri başarısız: {last_error}")
 
 def format_sure(saniye) -> str:
     """Saniyeyi dakika:saniye formatına dönüştür"""
