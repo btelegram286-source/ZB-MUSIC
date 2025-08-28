@@ -3,3 +3,4 @@ yt-dlp>=2024.4.14
 ffmpeg-python==0.2.0
 Flask==3.0.3
 requests==2.32.3
+gunicorn==22.0.0
