@@ -302,12 +302,12 @@ def handle_query(message):
 
 # --- SUNUCUYU BAŞLAT ---
 if __name__ == "__main__":
-    # Test modunda mı kontrol et
+    port = int(os.environ.get("PORT", 5000))
+
     if BOT_TOKEN == "test_token":
         print("🧪 Test modunda çalışıyor... Telegram bağlantısı yok.")
         print("Bot fonksiyonları test edilebilir durumda.")
         # Flask sunucusunu başlat
-        port = int(os.environ.get("PORT", 5000))
         app.run(host='0.0.0.0', port=port, debug=True)
     else:
         print("🚀 ZB MUSIC Bot başlatılıyor (Polling modunda)...")
@@ -318,9 +318,4 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"❌ Telegram bağlantı hatası: {e}")
             print("🌐 Flask sunucusu başlatılıyor...")
-            port = int(os.environ.get("PORT", 5000))
             app.run(host='0.0.0.0', port=port, debug=True)
-        except Exception as e:
-            print(f"❌ Telegram bağlantı hatası: {e}")
-            print("🌐 Flask sunucusu başlatılıyor...")
-            app.run(host='0.0.0.0', port=5000, debug=True)
