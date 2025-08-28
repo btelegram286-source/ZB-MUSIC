@@ -198,7 +198,6 @@ Sadece şarkı adı veya sanatçı ismi yazın. Örnek:
 /ayarlar komutu ile ses kalitesini değiştirebilirsiniz.
 
 📊 *Limitler:*
-• Günlük 20 şarkı indirme limiti
 • Maximum 10 dakika şarkı süresi
 
 🚨 *Sorun Giderme:*
@@ -259,7 +258,7 @@ def handle_callback(call):
             
             mp3_file.unlink()
             
-        except Exception as e:
+Günlük 20 şarkı indirme limiti        except Exception as e:
             bot.answer_callback_query(call.id, "❌ İndirme hatası!")
             bot.send_message(user_id, f"❌ Hata: {str(e)}")
 
