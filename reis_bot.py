@@ -310,12 +310,19 @@ if __name__ == "__main__":
         # Flask sunucusunu başlat
         app.run(host='0.0.0.0', port=port, debug=True)
     else:
-        print("🚀 ZB MUSIC Bot başlatılıyor (Polling modunda)...")
+        print("🚀 ZB MUSIC Bot başlatılıyor (Webhook modunda)...")
         try:
+            WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET")
+            BASE_URL = os.environ.get("BASE_URL")
+            
+            if not WEBHOOK_SECRET or not BASE_URL:
+                raise ValueError("WEBHOOK_SECRET ve BASE_URL ortam değişkenleri ayarlanmalıdır.")
+            
             bot.remove_webhook()
-            print("🤖 Bot polling modunda çalışıyor. Mesajları dinliyor...")
-            bot.infinity_polling()
+            bot.set_webhook(url=BASE_URL + "/webhook", secret_token=WEBHOOK_SECRET)
+            print(f"✅ Webhook set: True -> {BASE_URL}/webhook")
         except Exception as e:
-            print(f"❌ Telegram bağlantı hatası: {e}")
-            print("🌐 Flask sunucusu başlatılıyor...")
-            app.run(host='0.0.0.0', port=port, debug=True)
+            print(f"❌ Webhook ayarlanırken hata oluştu: {e}")
+        
+        print("🌐 Flask sunucusu başlatılıyor...")
+        app.run(host='0.0.0.0', port=port, debug=True)
