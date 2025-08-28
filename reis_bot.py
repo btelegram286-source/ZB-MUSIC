@@ -8,7 +8,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 search_results = {}
 
-# Yardımcı fonksiyonlar (örnek)
+# Yardımcı fonksiyonlar
 def format_sure(saniye):
     dakika = int(saniye) // 60
     saniye = int(saniye) % 60
@@ -18,7 +18,7 @@ def arama_yap(query, max_results=5):
     # YouTube API veya alternatif arama mantığı burada olmalı
     return []
 
-# Callback handler (örnek)
+# Callback handler
 @bot.callback_query_handler(func=lambda call: call.data.startswith("download_"))
 def handle_download(call):
     user_id = call.message.chat.id
@@ -80,10 +80,12 @@ def handle_query(message):
 
 # --- SUNUCUYU BAŞLAT ---
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+
     if BOT_TOKEN == "test_token":
         print("🧪 Test modunda çalışıyor... Telegram bağlantısı yok.")
         print("Bot fonksiyonları test edilebilir durumda.")
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=port, debug=True)
     else:
         print("🚀 ZB MUSIC Bot başlatılıyor (Polling modunda)...")
         try:
@@ -94,6 +96,6 @@ if __name__ == "__main__":
             print(f"❌ Telegram bağlantı hatası: {e}")
             print("🌐 Flask sunucusu başlatılıyor...")
             try:
-                app.run(host='0.0.0.0', port=5000, debug=True)
+                app.run(host='0.0.0.0', port=port, debug=True)
             except Exception as e:
                 print(f"❌ Flask sunucusu başlatılamadı: {e}")
