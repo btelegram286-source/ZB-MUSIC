@@ -15,7 +15,8 @@ if not BOT_TOKEN:
 bot = telebot.TeleBot(BOT_TOKEN)
 TEMP_DIR = Path("ZB_MUSIC")
 TEMP_DIR.mkdir(exist_ok=True)
-
+❌ Bir hata oluştu:
+Unknown format code 'd' for object of type 'float'
 # Kullanıcı verileri ve arama sonuçları için geçici depolama
 user_data: Dict[int, Dict] = {}
 search_results: Dict[str, List[Dict]] = {}
@@ -85,11 +86,16 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k') -> Path:
 
     return mp3_path
 
-def format_sure(saniye: int) -> str:
+def format_sure(saniye) -> str:
     """Saniyeyi dakika:saniye formatına dönüştür"""
-    dakika = saniye // 60
-    saniye = saniye % 60
-    return f"{dakika}:{saniye:02d}"
+    try:
+        # Float veya int değeri integer'a dönüştür
+        saniye_int = int(float(saniye))
+        dakika = saniye_int // 60
+        saniye_kalan = saniye_int % 60
+        return f"{dakika}:{saniye_kalan:02d}"
+    except (ValueError, TypeError):
+        return "Bilinmiyor"
 
 # --- BOT KOMUTLARI ---
 @bot.message_handler(commands=['start'])
