@@ -15,8 +15,6 @@ if not BOT_TOKEN:
 bot = telebot.TeleBot(BOT_TOKEN)
 TEMP_DIR = Path("ZB_MUSIC")
 TEMP_DIR.mkdir(exist_ok=True)
-❌ Bir hata oluştu:
-Unknown format code 'd' for object of type 'float'
 # Kullanıcı verileri ve arama sonuçları için geçici depolama
 user_data: Dict[int, Dict] = {}
 search_results: Dict[str, List[Dict]] = {}
