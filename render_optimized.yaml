@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: zb-music-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT reis_bot_optimized:app
+    envVars:
+      - key: BOT_TOKEN
+        fromSecret: true
+      - key: OWNER_ID
+        fromSecret: true
+      - key: WEBHOOK_URL
+        fromSecret: true
