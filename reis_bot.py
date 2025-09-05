@@ -125,9 +125,9 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
     # Çerezleri environment variable'dan al
     yt_cookies = os.environ.get('YT_COOKIES', '')
 
-    # İndirme seçenekleri - önce normal, sonra Android client ile dene
+    # İndirme seçenekleri - gelişmiş bot detection bypass
     ydl_opts_list = [
-        # 1. Deneme: Normal web client + çerezler
+        # 1. Deneme: Premium web client + gelişmiş headers
         {
             'format': output_format,
             'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
@@ -138,13 +138,22 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
             'extractor_args': {
                 'youtube': {
                     'skip': ['dash', 'hls'],
-                    'player_client': ['web']
+                    'player_client': ['web', 'android'],
+                    'player_skip': ['js', 'configs', 'webpage'],
                 }
             },
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
-            'retries': 3,
+            'retries': 5,
+            'http_headers': {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            },
         },
         # 2. Deneme: Android client + çerezler
         {
@@ -157,15 +166,16 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
             'extractor_args': {
                 'youtube': {
                     'skip': ['dash', 'hls'],
-                    'player_client': ['android']
+                    'player_client': ['android'],
+                    'player_skip': ['js', 'configs'],
                 }
             },
-            'user_agent': 'com.google.android.youtube/18.31.40 (Linux; Android 12)',
+            'user_agent': 'com.google.android.youtube/19.09.36 (Linux; U; Android 12; SM-G998B) gzip',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
-            'retries': 3,
+            'retries': 5,
         },
-        # 3. Deneme: Mobil user-agent ile
+        # 3. Deneme: iOS client
         {
             'format': output_format,
             'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
@@ -173,17 +183,49 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
             'quiet': True,
             'no_warnings': True,
             'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
-            'user_agent': 'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Mobile Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'skip': ['dash', 'hls'],
+                    'player_client': ['ios'],
+                    'player_skip': ['js', 'configs'],
+                }
+            },
+            'user_agent': 'com.google.ios.youtube/19.09.3 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X; en_US)',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
-            'retries': 3,
+            'retries': 5,
+        },
+        # 4. Deneme: Eski web client (fallback)
+        {
+            'format': output_format,
+            'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
+            'noplaylist': True,
+            'quiet': True,
+            'no_warnings': True,
+            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'extractor_args': {
+                'youtube': {
+                    'skip': ['dash', 'hls'],
+                    'player_client': ['web'],
+                    'player_skip': ['js', 'configs', 'webpage'],
+                }
+            },
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
+            'referer': 'https://www.youtube.com/',
+            'socket_timeout': 30,
+            'retries': 5,
         }
     ]
 
     # Eğer YT_COOKIES environment variable varsa, geçici cookies.txt oluştur
     if yt_cookies:
-        with open('cookies.txt', 'w', encoding='utf-8') as f:
-            f.write(yt_cookies)
+        try:
+            with open('cookies.txt', 'w', encoding='utf-8') as f:
+                f.write(yt_cookies)
+            print("✅ YouTube çerezleri yüklendi")
+        except Exception as e:
+            print(f"⚠️ Çerez dosyası oluşturulamadı: {e}")
+
         # Çerez dosyası kullanılacak şekilde tüm seçenekleri güncelle
         for opts in ydl_opts_list:
             opts['cookiefile'] = 'cookies.txt'
@@ -191,7 +233,8 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
     last_error = None
     for i, ydl_opts in enumerate(ydl_opts_list, 1):
         try:
-            print(f"⏳ İndirme denemesi {i}/3: {ydl_opts.get('user_agent', 'default')}")
+            client_name = ydl_opts['extractor_args']['youtube']['player_client'][0]
+            print(f"⏳ İndirme denemesi {i}/4: {client_name} client")
 
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([video_url])
@@ -210,13 +253,18 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
 
             # Temizlik: Geçici cookies.txt dosyasını sil
             if yt_cookies and os.path.exists('cookies.txt'):
-                os.remove('cookies.txt')
+                try:
+                    os.remove('cookies.txt')
+                except:
+                    pass
 
+            print(f"✅ İndirme başarılı: {client_name} client ile")
             return result_path
 
         except Exception as e:
             last_error = e
-            print(f"❌ Deneme {i} başarısız: {str(e)}")
+            client_name = ydl_opts['extractor_args']['youtube']['player_client'][0]
+            print(f"❌ Deneme {i} ({client_name}) başarısız: {str(e)}")
             # Önceki denemede oluşan geçici dosyaları temizle
             for temp_file in TEMP_DIR.glob(f"{unique_id}.*"):
                 try:
@@ -227,9 +275,12 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
 
     # Temizlik: Geçici cookies.txt dosyasını sil
     if yt_cookies and os.path.exists('cookies.txt'):
-        os.remove('cookies.txt')
+        try:
+            os.remove('cookies.txt')
+        except:
+            pass
 
-    raise Exception(f"Tüm indirme denemeleri başarısız: {last_error}")
+    raise Exception(f"Tüm indirme denemeleri başarısız. Son hata: {last_error}")
 
 def format_sure(saniye) -> str:
     """Saniyeyi dakika:saniye formatına dönüştür"""
