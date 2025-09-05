@@ -2,6 +2,8 @@ import os
 import uuid
 import random
 import time
+import subprocess
+import sys
 import telebot
 import yt_dlp
 import ffmpeg
@@ -111,6 +113,14 @@ def arama_yap(query: str, limit: int = 5) -> List[Dict]:
 
 def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = 'audio') -> Path:
     """Belirli bir video ID'sini indir ve MP3'e dönüştür veya video olarak indir (gelişmiş versiyon)"""
+
+    # Otomatik yt-dlp güncellemesi
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp"])
+        print("✅ yt-dlp güncellendi")
+    except Exception as e:
+        print(f"⚠️ yt-dlp güncelleme hatası: {e}")
+
     unique_id = str(uuid.uuid4())
     video_url = f"https://www.youtube.com/watch?v={video_id}"
 
@@ -139,16 +149,17 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
             'extractor_args': {
                 'youtube': {
                     'skip': ['dash', 'hls'],
-                    'player_client': ['web', 'android'],
+                    'player_client': ['web', 'android', 'ios'],
                     'player_skip': ['js', 'configs', 'webpage'],
                 }
             },
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
             'geo_bypass': True,
             'extractor_retries': 3,
+            'sleep_interval': 1,
             'http_headers': {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
                 'Accept-Language': 'en-US,en;q=0.9,tr;q=0.8',
@@ -156,7 +167,7 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                 'DNT': '1',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
-                'Sec-Ch-Ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+                'Sec-Ch-Ua': '"Not_A Brand";v="8", "Chromium";v="132", "Google Chrome";v="132"',
                 'Sec-Ch-Ua-Mobile': '?0',
                 'Sec-Ch-Ua-Platform': '"Windows"',
                 'Sec-Fetch-Dest': 'document',
@@ -164,6 +175,7 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                 'Sec-Fetch-Site': 'none',
                 'Sec-Fetch-User': '?1',
                 'Cache-Control': 'max-age=0',
+                'Authorization': 'Bearer YOUR_ACCESS_TOKEN' if 'YT_ACCESS_TOKEN' in os.environ else None,
             },
         },
         # 2. Deneme: Android client + çerezler
@@ -177,16 +189,17 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
             'extractor_args': {
                 'youtube': {
                     'skip': ['dash', 'hls'],
-                    'player_client': ['android'],
+                    'player_client': ['android', 'web'],
                     'player_skip': ['js', 'configs'],
                 }
             },
-            'user_agent': 'com.google.android.youtube/20.09.36 (Linux; U; Android 13; SM-G998B) gzip',
+            'user_agent': 'com.google.android.youtube/21.01.35 (Linux; U; Android 14; SM-S918B) gzip',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
             'geo_bypass': True,
             'extractor_retries': 3,
+            'sleep_interval': 1,
         },
         # 3. Deneme: iOS client
         {
@@ -199,18 +212,19 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
             'extractor_args': {
                 'youtube': {
                     'skip': ['dash', 'hls'],
-                    'player_client': ['ios'],
+                    'player_client': ['ios', 'web'],
                     'player_skip': ['js', 'configs'],
                 }
             },
-            'user_agent': 'com.google.ios.youtube/20.09.3 (iPhone14,3; U; CPU iOS 17_5 like Mac OS X; en_US)',
+            'user_agent': 'com.google.ios.youtube/21.01.3 (iPhone16,2; U; CPU iOS 18_1 like Mac OS X; en_US)',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
             'geo_bypass': True,
             'extractor_retries': 3,
+            'sleep_interval': 1,
         },
-        # 4. Deneme: Eski web client (fallback)
+        # 4. Deneme: Firefox client
         {
             'format': output_format,
             'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
@@ -225,12 +239,13 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                     'player_skip': ['js', 'configs', 'webpage'],
                 }
             },
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
             'geo_bypass': True,
             'extractor_retries': 3,
+            'sleep_interval': 1,
             'http_headers': {
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.9,tr;q=0.8',
@@ -239,8 +254,24 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
             },
-        }
-    ]
+        },
+        # 5. Deneme: Edge client
+        {
+            'format': output_format,
+            'outtmpl': str(temp_path.with_suffix('.%(ext)s')),
+            'noplaylist': True,
+            'quiet': True,
+            'no_warnings': True,
+            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'extractor_args': {
+                'youtube': {
+                    'skip': ['dash', 'hls'],
+                    'player_client': ['web'],
+                    'player_skip': ['js', 'configs', 'webpage'],
+                }
+            },
+            'user_agent': 'Mozilla/<read_file>
+<path>ZB-MUSIC/render.yaml</path>
 
     # Eğer YT_COOKIES environment variable varsa, geçici cookies.txt oluştur
     if yt_cookies:
