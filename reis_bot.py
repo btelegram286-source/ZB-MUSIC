@@ -1,6 +1,7 @@
 import os
 import uuid
 import random
+import time
 import telebot
 import yt_dlp
 import ffmpeg
@@ -142,17 +143,27 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                     'player_skip': ['js', 'configs', 'webpage'],
                 }
             },
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
+            'geo_bypass': True,
+            'extractor_retries': 3,
             'http_headers': {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                'Accept-Language': 'en-US,en;q=0.9,tr;q=0.8',
                 'Accept-Encoding': 'gzip, deflate, br',
                 'DNT': '1',
                 'Connection': 'keep-alive',
                 'Upgrade-Insecure-Requests': '1',
+                'Sec-Ch-Ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+                'Sec-Ch-Ua-Mobile': '?0',
+                'Sec-Ch-Ua-Platform': '"Windows"',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+                'Cache-Control': 'max-age=0',
             },
         },
         # 2. Deneme: Android client + çerezler
@@ -170,10 +181,12 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                     'player_skip': ['js', 'configs'],
                 }
             },
-            'user_agent': 'com.google.android.youtube/19.09.36 (Linux; U; Android 12; SM-G998B) gzip',
+            'user_agent': 'com.google.android.youtube/20.09.36 (Linux; U; Android 13; SM-G998B) gzip',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
+            'geo_bypass': True,
+            'extractor_retries': 3,
         },
         # 3. Deneme: iOS client
         {
@@ -190,10 +203,12 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                     'player_skip': ['js', 'configs'],
                 }
             },
-            'user_agent': 'com.google.ios.youtube/19.09.3 (iPhone14,3; U; CPU iOS 15_6 like Mac OS X; en_US)',
+            'user_agent': 'com.google.ios.youtube/20.09.3 (iPhone14,3; U; CPU iOS 17_5 like Mac OS X; en_US)',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
+            'geo_bypass': True,
+            'extractor_retries': 3,
         },
         # 4. Deneme: Eski web client (fallback)
         {
@@ -210,10 +225,20 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                     'player_skip': ['js', 'configs', 'webpage'],
                 }
             },
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0',
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
             'referer': 'https://www.youtube.com/',
             'socket_timeout': 30,
             'retries': 5,
+            'geo_bypass': True,
+            'extractor_retries': 3,
+            'http_headers': {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9,tr;q=0.8',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'DNT': '1',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+            },
         }
     ]
 
