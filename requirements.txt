@@ -9,3 +9,5 @@ spotipy==2.23.0
 pydub==0.25.1
 googletrans==4.0.0rc1
 lyricsgenius==3.0.1
+pytest==8.2.0
+pytest-mock==3.14.0
