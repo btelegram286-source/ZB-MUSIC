@@ -270,7 +270,7 @@ def indir_ve_donustur(video_id: str, bitrate: str = '320k', format_type: str = '
                     'player_skip': ['js', 'configs', 'webpage'],
                 }
             },
-            'user_agent': 'Mozilla/<read_file>
+         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36',
 <path>ZB-MUSIC/render.yaml</path>
 
     # Eğer YT_COOKIES environment variable varsa, geçici cookies.txt oluştur
