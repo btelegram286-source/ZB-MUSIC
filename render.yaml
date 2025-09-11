@@ -2,7 +2,7 @@ services:
   - type: web
     name: zb-music-bot
     env: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt imageio[ffmpeg]
     startCommand: python -c "import os; os.environ['RENDER'] = 'true'; exec(open('reis_bot.py').read())"
     envVars:
       - key: BOT_TOKEN
